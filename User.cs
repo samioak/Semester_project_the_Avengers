@@ -18,11 +18,11 @@ public class User
     public void Start()
     {
         double distance = Get_Valid_Distance();
-        var results = engine.Comparison(distance, availableTransportModes);
+        var results = engine.Compare(distance, availableTransportModes);
         Displayresults(results);
-
         var reccommendation = engine.GetRecommendation(results,criteria);
-
+        Console.WriteLine($"Recommended Transport Mode based on {criteria}: {reccommendation.TransportName}");
+        DisplayAssumpitions();
     }
     private double Get_Valid_Distance()
     {
@@ -56,10 +56,16 @@ public class User
         {
             Console.WriteLine($"Transport Mode: {result.TransportName}");
             Console.WriteLine($"Time: {result.TimeInMinutes} minutes");
-            Console.WriteLine($"Cost: ${result.Cost}");
+            Console.WriteLine($"Cost: {result.Cost} dkk");
             Console.WriteLine($"Emissions: {result.Co2EmissionsGrams} g CO2");
             Console.WriteLine("---------------------------");
         }
+    }
+
+    private void DisplayAssumpitions()
+    {
+        Console.WriteLine("Assumptions");
+    }
 
      static void Main(string[] args)
     {
