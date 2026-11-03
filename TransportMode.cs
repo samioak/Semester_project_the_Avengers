@@ -11,7 +11,7 @@ public abstract class TransportMode
 
     public abstract double CalculateCost(double distanceKm);
     public abstract double CalculateEmissions(double distanceKm);
-    public abstract double GetAssumption();
+    public abstract string GetAssumptions();
 
 
 }
