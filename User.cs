@@ -3,7 +3,6 @@ public class User
     private List<TransportMode> availableTransportModes;
     private ComparisonEngine engine;
 
-    private string criteria= "Time"; 
     public User()
     {
         availableTransportModes = new List<TransportMode>
@@ -21,6 +20,8 @@ public class User
         double distance = Get_Valid_Distance();
         var results = engine.Compare(distance, selected);
         Displayresults(results);
+
+        string criteria = GetCriteria();
         var reccommendation = engine.GetRecommendation(results,criteria);
         Console.WriteLine($"Recommended Transport Mode based on {criteria}: {reccommendation.TransportName}");
         DisplayAssumpitions();
@@ -102,9 +103,40 @@ public class User
         }
     }
 
+    public string GetCriteria()
+    {
+        Console.WriteLine("Select criteria for recommendation (Cost, Emissions, Time):");
+        try{
+            string criteria = Console.ReadLine();
+            if(criteria != "Cost" && criteria != "Emissions" && criteria != "Time")
+            {
+                Console.WriteLine("Invalid criteria. Please select either 'Cost', 'Emissions', or 'Time'.");
+                return GetCriteria();
+            }
+            return criteria;
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            return GetCriteria();
+        }
+        catch(FormatException)
+        {
+            Console.WriteLine("Invalid input. Please select either 'Cost', 'Emissions', or 'Time'.");
+            return GetCriteria();
+        }
+
+    }
+
+
     private void DisplayAssumpitions()
     {
-        Console.WriteLine("Assumptions");
+        foreach (var transport in SelectTransports())
+        {
+            Console.WriteLine($"Assumptions for {transport.Name}:");
+            Console.WriteLine(transport.GetAssumptions());
+            Console.WriteLine("---------------------------");
+        }
     }
 
 }
