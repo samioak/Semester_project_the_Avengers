@@ -1,13 +1,11 @@
 public class ComparisonEngine {
-    public class ComparisonResult
-    {
-        public string TransportName { get; set; }
-        public double Cost { get; set; }
-        public double Emissions { get; set; }
-        public double TimeInMinutes { get; set; }
-    }   
+    public string TransportName { get; set; }
+    public double Cost { get; set; }
+    public double EmissionsEmmisionGrams { get; set; }
+    public double TimeInMinutes { get; set; }
+       
 
-    public List<ComparisonResult> CompareTransportModes(List<TransportMode> transportModes, double distanceKm)
+    public List<ComparisonResult> Compare(List<TransportMode> transportModes, double distanceKm)
     {
         var results = new List<ComparisonResult>();
 
@@ -27,15 +25,15 @@ public class ComparisonEngine {
         return results;
     }
     
-    public ComparisonResult GetBestOption(List<ComparisonResult> results, string criteria)
+    public ComparisonResult GetReccommendation(List<ComparisonResult> results, string criteria)
     {
         switch (criteria)
         {
-            case "cost":
+            case "Cost":
                 return results.OrderBy(r => r.Cost).FirstOrDefault();
-            case "emissions":
+            case "Emissions":
                 return results.OrderBy(r => r.Emissions).FirstOrDefault();
-            case "time":
+            case "Time":
                 return results.OrderBy(r => r.TimeInMinutes).FirstOrDefault();
         }
     }
