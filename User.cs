@@ -17,6 +17,7 @@ public class User
     }
     public void Start()
     {
+        
         double distance = Get_Valid_Distance();
         var results = engine.Compare(distance, availableTransportModes);
         Displayresults(results);
@@ -49,7 +50,7 @@ public class User
         }
     }
 
-    private void Displayresults(List<ComparisonResult> results)
+    private void Displayresults(List<ComparisonResult> results) 
     {
         Console.WriteLine("Comparison Results:");
         foreach (var result in results)
