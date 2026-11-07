@@ -107,14 +107,5 @@ public class User
         Console.WriteLine("Assumptions");
     }
 
-     static void Main(string[] args)
-    {
-        User user = new User();
-        double distance = user.Get_Valid_Distance();
-        Console.WriteLine($"You entered a valid distance of {distance} km.");
-    }
-
-
-
 }
 
