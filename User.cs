@@ -17,9 +17,9 @@ public class User
     }
     public void Start()
     {
-        
+        List<TransportMode> selected = SelectTransports();
         double distance = Get_Valid_Distance();
-        var results = engine.Compare(distance, availableTransportModes);
+        var results = engine.Compare(distance, selected);
         Displayresults(results);
         var reccommendation = engine.GetRecommendation(results,criteria);
         Console.WriteLine($"Recommended Transport Mode based on {criteria}: {reccommendation.TransportName}");
@@ -48,6 +48,45 @@ public class User
             Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             return Get_Valid_Distance();
         }
+    }
+
+    private List<TransportMode> SelectTransports()
+    {
+        Console.WriteLine("Select transport modes to compare (comma-separated):");
+        for (int i = 0; i < availableTransportModes.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {availableTransportModes[i].Name}");
+        }
+
+        string input = Console.ReadLine();
+        var selectedIndices = input.Split(',').Select(s => int.Parse(s.Trim()) - 1).ToList();
+        var selectedTransports = new List<TransportMode>();
+
+        foreach (var index in selectedIndices)
+        {
+            if (index >= 0 && index < availableTransportModes.Count)
+            {
+                selectedTransports.Add(availableTransportModes[index]);
+            }
+            else
+            {
+                Console.WriteLine($"Invalid selection: {index + 1}. Please select valid transport modes.");
+                return SelectTransports();
+            }
+        }
+
+        if (selectedTransports.Count == 0)
+        {
+            Console.WriteLine("No valid transport modes selected. Please select at least one valid transport mode.");
+            return SelectTransports();
+        }
+        else if (selectedTransports.Count < 2)
+        {
+            Console.WriteLine("You must select at least 2 transport modes. Please select again.");
+            return SelectTransports();
+        }
+        
+        return selectedTransports;
     }
 
     private void Displayresults(List<ComparisonResult> results) 
