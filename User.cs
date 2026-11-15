@@ -1,16 +1,16 @@
 public class User
 {
-    private List<TransportMode> availableTransportModes;
+    private readonly List<string> availableTransportModes;
     private ComparisonEngine engine;
 
     public User()
     {
-        availableTransportModes = new List<TransportMode>
+        availableTransportModes = new List<string>
         {
-            new MotorVehicle(),
-            new PublicTransport(),
-            new Cycling(),
-            new Walking()
+            "Motor Vehicle",
+            "Public Transport",
+            "Cycling",
+            "Walking"
         };
         engine = new ComparisonEngine();
     }
@@ -18,17 +18,17 @@ public class User
     {
         List<TransportMode> selected = SelectTransports();
         double distance = Get_Valid_Distance();
-        var results = engine.Compare(distance, selected);
+        List<ComparisonResult> results = engine.Compare(selected, distance);
         Displayresults(results);
 
         string criteria = GetCriteria();
-        var reccommendation = engine.GetRecommendation(results,criteria);
-        Console.WriteLine($"Recommended Transport Mode based on {criteria}: {reccommendation.TransportName}");
-        DisplayAssumpitions();
+        ComparisonResult recommendation = engine.GetRecommendation(results, criteria);
+        Console.WriteLine($"Recommended Transport Mode based on {criteria}: {recommendation.TransportName}");
+        DisplayAssumpitions(selected);
     }
     private double Get_Valid_Distance()
     {
-        try
+       try
         {
             Console.WriteLine("Enter the distance in kilometers: ");
             double distance = Convert.ToDouble(Console.ReadLine());
@@ -53,41 +53,69 @@ public class User
 
     private List<TransportMode> SelectTransports()
     {
-        Console.WriteLine("Select transport modes to compare (comma-separated):");
-        for (int i = 0; i < availableTransportModes.Count; i++)
+        while (true)
         {
-            Console.WriteLine($"{i + 1}. {availableTransportModes[i].Name}");
-        }
-
-        string input = Console.ReadLine();
-        var selectedIndices = input.Split(',').Select(s => int.Parse(s.Trim()) - 1).ToList();
-        var selectedTransports = new List<TransportMode>();
-
-        foreach (var index in selectedIndices)
-        {
-            if (index >= 0 && index < availableTransportModes.Count)
+            Console.WriteLine("Select at least 2 transport modes to compare (comma-separated):");
+            for (int i = 0; i < availableTransportModes.Count; i++)
             {
-                selectedTransports.Add(availableTransportModes[index]);
+                Console.WriteLine($"{i + 1}. {availableTransportModes[i]}");
             }
-            else
-            {
-                Console.WriteLine($"Invalid selection: {index + 1}. Please select valid transport modes.");
-                return SelectTransports();
-            }
-        }
 
-        if (selectedTransports.Count == 0)
-        {
-            Console.WriteLine("No valid transport modes selected. Please select at least one valid transport mode.");
-            return SelectTransports();
+            string[] choices = (Console.ReadLine() ?? string.Empty).Split(',');
+            var selectedTransports = new List<TransportMode>();
+            var selectedIndices = new HashSet<int>();
+            bool isValid = choices.Length >= 2;
+
+            foreach (string choice in choices)
+            {
+                if (!int.TryParse(choice.Trim(), out int selectedIndex) ||
+                    selectedIndex < 1 ||
+                    selectedIndex > availableTransportModes.Count ||
+                    !selectedIndices.Add(selectedIndex))
+                {
+                    isValid = false;
+                    break;
+                }
+
+                TransportMode chosenMode = selectedIndex switch
+                {
+                    1 => SelectMotorVehicleType(),
+                    2 => new PublicTransport(),
+                    3 => new Cycling(),
+                    4 => new Walking(),
+                    _ => throw new InvalidOperationException("Unknown transport mode.")
+                };
+                selectedTransports.Add(chosenMode);
+            }
+
+            if (isValid)
+            {
+                return selectedTransports;
+            }
+
+            Console.WriteLine("Invalid selection. Enter at least 2 different valid numbers separated by commas.");
         }
-        else if (selectedTransports.Count < 2)
+    }
+
+    private MotorVehicle SelectMotorVehicleType()
+    {
+        while (true)
         {
-            Console.WriteLine("You must select at least 2 transport modes. Please select again.");
-            return SelectTransports();
+            Console.WriteLine("Select motor vehicle power type:");
+            Console.WriteLine("1. Electric");
+            Console.WriteLine("2. Fuel-powered");
+
+            switch (Console.ReadLine()?.Trim())
+            {
+                case "1":
+                    return new ElectricVehicle();
+                case "2":
+                    return new FuelVehicle();
+                default:
+                    Console.WriteLine("Invalid selection. Please enter 1 or 2.");
+                    break;
+            }
         }
-        
-        return selectedTransports;
     }
 
     private void Displayresults(List<ComparisonResult> results) 
@@ -98,40 +126,31 @@ public class User
             Console.WriteLine($"Transport Mode: {result.TransportName}");
             Console.WriteLine($"Time: {result.TimeInMinutes} minutes");
             Console.WriteLine($"Cost: {result.Cost} dkk");
-            Console.WriteLine($"Emissions: {result.Co2EmissionsGrams} g CO2");
+            Console.WriteLine($"Emissions: {result.Emissions} g CO2");
             Console.WriteLine("---------------------------");
         }
     }
 
     public string GetCriteria()
     {
-        Console.WriteLine("Select criteria for recommendation (Cost, Emissions, Time):");
-        try{
-            string criteria = Console.ReadLine();
-            if(criteria != "Cost" && criteria != "Emissions" && criteria != "Time")
+        while (true)
+        {
+            Console.WriteLine("Select criteria for recommendation (Cost, Emissions, Time):");
+            string? criteria = Console.ReadLine()?.Trim();
+            if (criteria == "Cost" || criteria == "Emissions" || criteria == "Time")
             {
-                Console.WriteLine("Invalid criteria. Please select either 'Cost', 'Emissions', or 'Time'.");
-                return GetCriteria();
+                return criteria;
             }
-            return criteria;
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            return GetCriteria();
-        }
-        catch(FormatException)
-        {
-            Console.WriteLine("Invalid input. Please select either 'Cost', 'Emissions', or 'Time'.");
-            return GetCriteria();
-        }
 
+            Console.WriteLine("Invalid criteria. Please select either 'Cost', 'Emissions', or 'Time'.");
+        }
     }
 
 
-    private void DisplayAssumpitions()
+    private void DisplayAssumpitions(List<TransportMode> selectedTransports)
     {
-        foreach (var transport in SelectTransports())
+      
+        foreach (var transport in selectedTransports)
         {
             Console.WriteLine($"Assumptions for {transport.Name}:");
             Console.WriteLine(transport.GetAssumptions());
@@ -140,4 +159,3 @@ public class User
     }
 
 }
-

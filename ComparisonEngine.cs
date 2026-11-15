@@ -1,10 +1,4 @@
 public class ComparisonEngine {
-    public string TransportName { get; set; }
-    public double Cost { get; set; }
-    public double EmissionsEmmisionGrams { get; set; }
-    public double TimeInMinutes { get; set; }
-       
-
     public List<ComparisonResult> Compare(List<TransportMode> transportModes, double distanceKm)
     {
         var results = new List<ComparisonResult>();
@@ -13,7 +7,7 @@ public class ComparisonEngine {
         {
             var result = new ComparisonResult
             {
-                TransportName = mode.GetType().Name,
+                TransportName = mode.Name,
                 Cost = mode.CalculateCost(distanceKm),
                 Emissions = mode.CalculateEmissions(distanceKm),
                 TimeInMinutes = mode.CalculateTime(distanceKm)
@@ -25,16 +19,22 @@ public class ComparisonEngine {
         return results;
     }
     
-    public ComparisonResult GetReccommendation(List<ComparisonResult> results, string criteria)
+    public ComparisonResult GetRecommendation(List<ComparisonResult> results, string criteria)
     {
-        switch (criteria)
+        return criteria switch
         {
-            case "Cost":
-                return results.OrderBy(r => r.Cost).FirstOrDefault();
-            case "Emissions":
-                return results.OrderBy(r => r.Emissions).FirstOrDefault();
-            case "Time":
-                return results.OrderBy(r => r.TimeInMinutes).FirstOrDefault();
-        }
+            "Cost" => results.OrderBy(r => r.Cost).First(),
+            "Emissions" => results.OrderBy(r => r.Emissions).First(),
+            "Time" => results.OrderBy(r => r.TimeInMinutes).First(),
+            _ => throw new ArgumentException("Criteria must be Cost, Emissions, or Time.", nameof(criteria))
+        };
     }
+}
+
+public class ComparisonResult
+{
+    public string TransportName { get; set; } = string.Empty;
+    public double Cost { get; set; }
+    public double Emissions { get; set; }
+    public double TimeInMinutes { get; set; }
 }
