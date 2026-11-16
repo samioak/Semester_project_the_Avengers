@@ -1,0 +1,24 @@
+# Files created when building the program
+[Bb]in/
+[Oo]bj/
+artifacts/
+
+# Personal editor settings and caches
+.vs/
+.idea/
+*.user
+*.suo
+*.rsuser
+*.sln.docstates
+*.DotSettings.user
+
+# Automatically generated test output
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Files created by macOS or Windows
+.DS_Store
+Thumbs.db
