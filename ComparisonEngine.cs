@@ -1,8 +1,16 @@
-public class ComparisonEngine {
+using System.Text.Json;
+public class ComparisonEngine
+{
     public List<ComparisonResult> Compare(List<TransportMode> transportModes, double distanceKm)
     {
         var results = new List<ComparisonResult>();
-
+        var DataToSave = new
+        {
+            Distance = distanceKm,
+            Results = results
+        };
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        const string FileName = "Data.json";
         foreach (var mode in transportModes)
         {
             var result = new ComparisonResult
@@ -15,10 +23,18 @@ public class ComparisonEngine {
 
             results.Add(result);
         }
-
+        try
+        {
+            string jsonString = JsonSerializer.Serialize(DataToSave, options);
+            File.WriteAllText(FileName, jsonString);
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
         return results;
     }
-    
+
     public ComparisonResult GetRecommendation(List<ComparisonResult> results, string criteria)
     {
         return criteria switch
